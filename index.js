@@ -14,7 +14,7 @@ function simulateGame(team1, team2, exhibitions) {
 
     const team1WinProbability = baseWinProbability + (team1Form - team2Form) / 100;
 
-    return Math.random() < team1WinProbability ? [team1, team2] : [team2, team1];
+    return Math.random() < team1WinProbability ? team1 : team2;
 }
 
 // Funkcija za računanje forme tima na osnovu prijateljskih utakmica
@@ -44,7 +44,8 @@ function simulateGroupStage(groups, exhibitions) {
 
         for (let i = 0; i < group.length; i++) {
             for (let j = i + 1; j < group.length; j++) {
-                const [winner, loser] = simulateGame(group[i], group[j], exhibitions);
+                const winner = simulateGame(group[i], group[j], exhibitions);
+                const loser = winner === group[i] ? group[j] : group[i];
                 const winnerPoints = randomPoints();
                 const loserPoints = Math.floor(winnerPoints * Math.random());
 
@@ -110,9 +111,9 @@ const quarterfinals = {
 for (const groupName in groupStandings) {
     const teams = Object.keys(groupStandings[groupName]);
     quarterfinals.D.push(teams[0]); // 1. mesto
-    quarterfinals.D.push(teams[1]); // 2. mesto
+    quarterfinals.G.push(teams[1]); // 2. mesto
     quarterfinals.E.push(teams[2]); // 3. mesto
-    quarterfinals.E.push(teams[3]); // 4. mesto
+    quarterfinals.F.push(teams[3]); // 4. mesto
 }
 
 // Randomizacija parova četvrtfinala
@@ -123,11 +124,11 @@ const eAndF = quarterfinals.E.concat(quarterfinals.F);
 // Formiranje parova
 while (dAndG.length && eAndF.length) {
     const dTeam = dAndG.splice(Math.floor(Math.random() * dAndG.length), 1)[0];
-    const gTeam = quarterfinals.G.splice(Math.floor(Math.random() * quarterfinals.G.length), 1)[0];
+    const gTeam = dAndG.splice(Math.floor(Math.random() * dAndG.length), 1)[0];
     quarterfinalPairs.push([dTeam, gTeam]);
 
     const eTeam = eAndF.splice(Math.floor(Math.random() * eAndF.length), 1)[0];
-    const fTeam = quarterfinals.F.splice(Math.floor(Math.random() * quarterfinals.F.length), 1)[0];
+    const fTeam = eAndF.splice(Math.floor(Math.random() * eAndF.length), 1)[0];
     quarterfinalPairs.push([eTeam, fTeam]);
 }
 
@@ -145,28 +146,28 @@ quarterfinals.G.forEach(team => console.log(`        ${team}`));
 // Eliminaciona faza
 const eliminationResults = [];
 quarterfinalPairs.forEach(pair => {
-    const winner = simulateGame({ Team: pair[0] }, { Team: pair[1] }, exhibitions)[0];
-    const loser = pair[0] === winner.Team ? pair[1] : pair[0];
+    const winner = simulateGame({ Team: pair[0] }, { Team: pair[1] }, exhibitions).Team;
+    const loser = pair[0] === winner ? pair[1] : pair[0];
     const winnerPoints = randomPoints();
     const loserPoints = Math.floor(winnerPoints * Math.random());
     eliminationResults.push({
-        match: `${winner.Team} - ${loser.Team}`,
+        match: `${pair[0]} - ${pair[1]}`,
         result: `${winnerPoints}:${loserPoints}`,
-        winner: winner.Team
+        winner
     });
 });
 
 // Polufinale
 const semifinalResults = [];
 for (let i = 0; i < eliminationResults.length; i += 2) {
-    const winner = simulateGame({ Team: eliminationResults[i].winner }, { Team: eliminationResults[i + 1].winner }, exhibitions)[0];
+    const winner = simulateGame({ Team: eliminationResults[i].winner }, { Team: eliminationResults[i + 1].winner }, exhibitions).Team;
     semifinalResults.push(winner);
 }
 
 // Utakmica za treće mesto
 const bronzeMatch = {
     team1: eliminationResults[0].winner === semifinalResults[0] ? eliminationResults[1].winner : eliminationResults[0].winner,
-    team2: eliminationResults[0].winner === semifinalResults[0] ? eliminationResults[0].winner : eliminationResults[1].winner
+    team2: eliminationResults[2].winner === semifinalResults[1] ? eliminationResults[3].winner : eliminationResults[2].winner
 };
 
 // Finale
