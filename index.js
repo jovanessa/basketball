@@ -101,10 +101,10 @@ for (const groupName in groupStageResults) {
 
 // Žreb za četvrtfinale
 const quarterfinals = {
-    D: [], // Timovi sa rangom 1 i 2
-    E: [], // Timovi sa rangom 3 i 4
-    F: [], // Timovi sa rangom 5 i 6
-    G: []  // Timovi sa rangom 7 i 8
+    D: [], // Timovi sa rangom 1
+    G: [], // Timovi sa rangom 2
+    E: [], // Timovi sa rangom 3
+    F: []  // Timovi sa rangom 4
 };
 
 // Prikupljanje timova u šešire
@@ -117,31 +117,23 @@ for (const groupName in groupStandings) {
 }
 
 // Randomizacija parova četvrtfinala
-const quarterfinalPairs = [];
-const dAndG = quarterfinals.D.concat(quarterfinals.G);
-const eAndF = quarterfinals.E.concat(quarterfinals.F);
-
-// Formiranje parova
-while (dAndG.length && eAndF.length) {
-    const dTeam = dAndG.splice(Math.floor(Math.random() * dAndG.length), 1)[0];
-    const gTeam = dAndG.splice(Math.floor(Math.random() * dAndG.length), 1)[0];
-    quarterfinalPairs.push([dTeam, gTeam]);
-
-    const eTeam = eAndF.splice(Math.floor(Math.random() * eAndF.length), 1)[0];
-    const fTeam = eAndF.splice(Math.floor(Math.random() * eAndF.length), 1)[0];
-    quarterfinalPairs.push([eTeam, fTeam]);
-}
+const quarterfinalPairs = [
+    [quarterfinals.D[0], quarterfinals.G[1]], // 1. mesto grupe A protiv 2. mesta grupe B
+    [quarterfinals.D[1], quarterfinals.G[0]], // 1. mesto grupe B protiv 2. mesta grupe A
+    [quarterfinals.E[0], quarterfinals.F[1]], // 3. mesto grupe A protiv 4. mesta grupe B
+    [quarterfinals.E[1], quarterfinals.F[0]]  // 3. mesto grupe B protiv 4. mesta grupe A
+];
 
 // Prikazivanje šešira
 console.log(`\nŠeširi:`);
 console.log(`    Šešir D`);
 quarterfinals.D.forEach(team => console.log(`        ${team}`));
+console.log(`    Šešir G`);
+quarterfinals.G.forEach(team => console.log(`        ${team}`));
 console.log(`    Šešir E`);
 quarterfinals.E.forEach(team => console.log(`        ${team}`));
 console.log(`    Šešir F`);
 quarterfinals.F.forEach(team => console.log(`        ${team}`));
-console.log(`    Šešir G`);
-quarterfinals.G.forEach(team => console.log(`        ${team}`));
 
 // Eliminaciona faza - Četvrtfinale
 const eliminationResults = [];
@@ -159,13 +151,13 @@ quarterfinalPairs.forEach(pair => {
 
 // Prikazivanje rezultata četvrtfinala
 console.log(`\nČetvrtfinale:`);
-eliminationResults.forEach(game => {
+eliminationResults.slice(0, 4).forEach(game => {
     console.log(`    ${game.match} (${game.result})`);
 });
 
 // Polufinale
 const semifinalResults = [];
-for (let i = 0; i < eliminationResults.length; i += 2) {
+for (let i = 0; i < 4; i += 2) {
     const team1 = { Team: eliminationResults[i].winner };
     const team2 = { Team: eliminationResults[i + 1].winner };
     const winner = simulateGame(team1, team2, exhibitions).Team;
@@ -173,6 +165,12 @@ for (let i = 0; i < eliminationResults.length; i += 2) {
     const loserPoints = Math.floor(winnerPoints * Math.random());
     semifinalResults.push({ match: `${team1.Team} - ${team2.Team}`, result: `${winnerPoints}:${loserPoints}`, winner });
 }
+
+// Prikazivanje rezultata polufinala
+console.log(`\nPolufinale:`);
+semifinalResults.forEach(match => {
+    console.log(`    ${match.match} (${match.result})`);
+});
 
 // Utakmica za treće mesto
 const bronzeMatch = {
@@ -183,18 +181,13 @@ const bronzeWinner = simulateGame({ Team: bronzeMatch.team1 }, { Team: bronzeMat
 const bronzeWinnerPoints = randomPoints();
 const bronzeLoserPoints = Math.floor(bronzeWinnerPoints * Math.random());
 
+console.log(`\nUtakmica za treće mesto:`);
+console.log(`    ${bronzeMatch.team1} - ${bronzeMatch.team2} (${bronzeWinnerPoints}:${bronzeLoserPoints})`);
+
 // Finale
 const finalWinner = simulateGame({ Team: semifinalResults[0].winner }, { Team: semifinalResults[1].winner }, exhibitions).Team;
 const finalWinnerPoints = randomPoints();
 const finalLoserPoints = Math.floor(finalWinnerPoints * Math.random());
-// Prikazivanje rezultata
-console.log(`\nPolufinale:`);
-semifinalResults.forEach(match => {
-    console.log(`    ${match.match} (${match.result})`);
-});
-
-console.log(`\nUtakmica za treće mesto:`);
-console.log(`    ${bronzeMatch.team1} - ${bronzeMatch.team2} (${bronzeWinnerPoints}:${bronzeLoserPoints})`);
 
 console.log(`\nFinale:`);
 console.log(`    ${semifinalResults[0].winner} - ${semifinalResults[1].winner} (${finalWinnerPoints}:${finalLoserPoints})`);
