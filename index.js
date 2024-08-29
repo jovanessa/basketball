@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-// Učitavanje podataka iz JSON fajlova
+
 const groups = JSON.parse(fs.readFileSync('groups.json', 'utf-8'));
 const exhibitions = JSON.parse(fs.readFileSync('exibitions.json', 'utf-8'));
 
